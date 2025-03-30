@@ -4,7 +4,7 @@ This is a simple and straightforward library that will give you the tools and fe
 # Support
 This library should be supported on every OS.
 The library should compile as well for most compilers, such as the `gcc`, `clang` and `msvc` C compilers.
-All code is in the header files, so no need to worry about linking and stuff
+All code is in the header files, so no need to worry about linking and stuff.
 Most of the code in the library uses macros, so there might be errors that are a bit less easy to understand.
 To compile the examples you can either use the `cmake` build platform or simply compile them with console commands, they don't need any libraries linked whatsoever.
 
