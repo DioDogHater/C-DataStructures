@@ -42,12 +42,12 @@
 
 // Pop last element off the vector
 #define pop_back(v) ({\
-	(v).arr = realloc((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
+	if((v).size > 0)(v).arr = realloc((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
 })
 
 // Pop last element off the vector with sized elements
 #define pop_back_sized(v,s) ({\
-	(v).arr = realloc((v).arr,(s)*--(v).size);\
+	if((v).size > 0)(v).arr = realloc((v).arr,(s)*--(v).size);\
 })
 
 // Pop nth element off the vector
@@ -56,7 +56,7 @@
 	for(int v_i = (n); v_i < (v).size-1; v_i++){\
 		(v).arr[v_i] = (v).arr[v_i+1];\
 	}\
-	(v).arr = realloc((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
+	if((v).size > 0)(v).arr = realloc((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
 })
 
 // Pop nth element off the vector, with sized elements
@@ -65,7 +65,7 @@
 	for(int v_i = (n); v_i < (v).size-1; v_i++){\
 		*at_sized((v),v_i,(s)) = *at_sized((v),v_i+1,(s));\
 	}\
-	(v).arr = realloc((v).arr,(s)*--(v).size);\
+	if((v).size > 0)(v).arr = realloc((v).arr,(s)*--(v).size);\
 })
 
 /*
