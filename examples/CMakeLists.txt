@@ -6,3 +6,4 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(hashtable hashtable.c)
 add_executable(vector vector.c)
+add_executable(linked_list linked_list.c)
