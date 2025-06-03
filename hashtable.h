@@ -3,6 +3,14 @@
 
 // IMPORTANT! THIS HEADER DEPENDS ON "vector.h"!
 
+#ifdef HASHTABLE_FREE
+#define VECTOR_FREE(ptr) HASHTABLE_FREE((ptr))
+#endif
+
+#ifdef HASHTABLE_REALLOC
+#define VECTOR_REALLOC(ptr, sz) HASHTABLE_REALLOC((ptr), (sz))
+#endif
+
 // We need the vector macros
 #include "vector.h"
 #include <string.h>
@@ -24,19 +32,19 @@ struct hashpair{
 
 // Vector of key/value pairs, is allocated by the hashtable dynamically
 // This vector uses a char array, though it does not act like a character string
-struct hashset{
+typedef struct {
 	char* arr;
 	size_t size;
-};
+} hashset_t;
 
 // This is basically a vector of hashets which are also vectors
-struct hashtable{
-	struct hashset* arr;
+typedef struct {
+	hashset_t* arr;
 	size_t size;
 	size_t (*hashing_func)(size_t,void*); // The hashing function
 	unsigned int max_size; // The max amount of pairs in a single index (cannot be 0)
 	size_t pair_size; // Size of the key/value pairs, in bytes
-};
+} hashtable_t;
 
 /*
 Creates a hashtable with nothing in it
@@ -50,7 +58,7 @@ size_t hashing_func(size_t size_of_hashtable, void* element_to_be_indexed){
 	return hash key;
 }
 */
-#define create_ht(h,m,p) (struct hashtable){NULL,0,(h),(m),(p)};
+#define create_ht(h,m,p) (hashtable_t){NULL,0,(h),(m),(p)};
 
 // Frees a hashtable
 #define free_ht(h) ({\
@@ -63,15 +71,15 @@ size_t hashing_func(size_t size_of_hashtable, void* element_to_be_indexed){
 })
 
 // Add extra hashsets to the hashtable
-void add_hashsets_ht(struct hashtable* ht, int size){
-	struct hashset hs = (struct hashset) create_vector();
+void add_hashsets_ht(hashtable_t* ht, int size){
+	hashset_t hs = (hashset_t) create_vector();
 	for(int i = 0; i < size; i++){
 		push_back(*ht,hs);
 	}
 }
 
 // Setup a hashtable with specified starting size
-void setup_ht(struct hashtable* ht, int start_size){
+void setup_ht(hashtable_t* ht, int start_size){
 	free_ht(*ht);
 	add_hashsets_ht(ht,start_size);
 }
@@ -82,7 +90,7 @@ void setup_ht(struct hashtable* ht, int start_size){
 // 3. Add the element to the hashset with the index we just got
 // 4. Check if the max size is respected, if not rearrange the hashtable
 // When using this function, please pass in a pointer to the key/value pair as the second argument
-void add_ht(struct hashtable* ht, void* element_to_add){
+void add_ht(hashtable_t* ht, void* element_to_add){
 	if(ht->arr == NULL || ht->size == 0 || ht->hashing_func == NULL || ht->max_size == 0) return;
 	// Step 1
 	size_t index = ht->hashing_func(ht->size,element_to_add);
@@ -92,7 +100,7 @@ void add_ht(struct hashtable* ht, void* element_to_add){
 		return;
 	};
 	// Step 3
-	struct hashset* hs = &at(*ht,index);
+	hashset_t* hs = &at(*ht,index);
 	add_size_vector(*hs, ht->pair_size);
 	memcpy(
 		at_sized(*hs, hs->size-1, ht->pair_size),
@@ -104,7 +112,7 @@ void add_ht(struct hashtable* ht, void* element_to_add){
 		size_t old_size = ht->size;
 		add_hashsets_ht(ht,ht->size); // Double the size of the hashtable
 		for(size_t i = 0; i < old_size; i++){
-			struct hashset* hs = &at(*ht,i);
+			hashset_t* hs = &at(*ht,i);
 			if(hs->size == 0) continue;
 			for(size_t j = hs->size-1; j >= 0 && j < ~0; j--){
 				char* element = (char*)malloc(ht->pair_size);
@@ -129,7 +137,7 @@ void add_ht(struct hashtable* ht, void* element_to_add){
 // 1. Get the hash index from the element we want to find
 // 2. Check if index is valid, throw an error if not
 // 3. Just return the hashset as a pointer
-struct hashset* get_ht(struct hashtable* ht, void* element_to_get){
+hashset_t* get_ht(hashtable_t* ht, void* element_to_get){
 	if(ht->arr == NULL || ht->size == 0 || ht->hashing_func == NULL || ht->max_size == 0) return NULL;
 	// Step 1
 	size_t index = ht->hashing_func(ht->size,element_to_get);
@@ -139,7 +147,7 @@ struct hashset* get_ht(struct hashtable* ht, void* element_to_get){
 		return NULL;
 	}
 	// Step 3
-	struct hashset* hs = &at(*ht,index);
+	hashset_t* hs = &at(*ht,index);
 	return hs;
 }
 
@@ -162,7 +170,7 @@ struct address{
 
 --- Create the hashtable, whatever... ---
 struct address element_to_get = (struct address){"A1B2C3"};
-struct hashset* hs = get_ht(&ht,&element_to_get);
+hashset_t* hs = get_ht(&ht,&element_to_get);
 if(hs == NULL) printf("hashset doesnt exist!\n");
 else{
 	size_t result;
@@ -216,7 +224,7 @@ else printf("found %s : %d\n",found_element.key,found_element.addr_num);
 
 */
 #define find_ht(h,e,c,s,r) ({\
-	struct hashset* hs_find = get_ht(&(h),&(e));\
+	hashset_t* hs_find = get_ht(&(h),&(e));\
 	if(hs_find == NULL) { printf("Failed to get hashset index!\n"); (r) = ~0; }\
 	else{\
 		find_hs(*hs_find,(e),(c),(r));\
@@ -233,11 +241,11 @@ else printf("found %s : %d\n",found_element.key,found_element.addr_num);
 NOTE: to convert h_element to the key/value pair you are using, simply use this template:
 	<type of pair> pair = * (<type of pair>*) h_element;
 - h_i -> size_t, is the index of the current hashset inside of the hashtable
-- h_hs -> struct hashset*, is the pointer to the current hashset
+- h_hs -> hashset_t*, is the pointer to the current hashset
 - h_j -> size_t, is the index of the current element inside of the hashset
 */
 #define parse_ht(h,c) ({\
-	struct hashset* h_hs;\
+	hashset_t* h_hs;\
 	void* h_element;\
 	for(size_t h_i = 0; h_i < (h).size; h_i++){\
 		h_hs = &at((h),h_i);\

@@ -6,19 +6,19 @@
 #define true 1
 #define false 0
 
-struct person_pair{
+typedef struct{
 	char* key; // Their name
 	unsigned int age; // Their age
-};
+} person_pair_t;
 
-struct person_vector{
-	struct person_pair* arr;
+typedef struct{
+	person_pair_t* arr;
 	size_t size;
-};
+} person_vector_t;
 
 // My hashing function
 size_t hashfunc(size_t ht_size, void* element){
-	struct person_pair pair = * (struct person_pair*) element;
+	person_pair_t pair = * (person_pair_t*) element;
 	size_t index = 0;
 	for(int i = 0; i < strlen(pair.key); i++){
 		index += (size_t)pair.key[i];
@@ -28,10 +28,10 @@ size_t hashfunc(size_t ht_size, void* element){
 
 int main(void){
 	// Create a hashtable with a maximum of 16 elements per index and 5 starting indices
-	struct hashtable ht = create_ht(
+	hashtable_t ht = create_ht(
 		hashfunc,
 		16,
-		sizeof(struct person_pair)
+		sizeof(person_pair_t)
 	);
 	setup_ht(&ht,5);
 
@@ -45,12 +45,14 @@ int main(void){
 		printf("Please enter the new person's name:\n");
 		fgets(name,49,stdin);
 		name[strlen(name)-1] = '\0';
+		// Check if the user wants to finish typing data
 		if(!strcmp(name,"quit")) break;
+		// Ask them for their age
 		printf("Please enter that person's age:\n");
 		scanf("%d",&age);
 		getchar(); // Skip the endline character left by scanf()
 		// Allocate the key (name) of the person and create the pair
-		struct person_pair new_person = (struct person_pair){
+		person_pair_t new_person = (person_pair_t){
 			malloc(strlen(name)),
 			age
 		};
@@ -61,11 +63,16 @@ int main(void){
 		printf("Added person:\n%s -> %u years old.\n",new_person.key,new_person.age);
 	}
 
+	printf("Hashtable has %lu hashsets\n",ht.size);
+	for(int i = 0; i < ht.size; i++){
+		printf("Hashset %d has %lu elements\n",i,at(ht,i).size);
+	}
+
 	// Sort people with their age ascendingly
 	// Parse through all the pairs in the hashtable and add them to a vector
-	struct person_vector vec = (struct person_vector) create_vector();
+	person_vector_t vec = (person_vector_t) create_vector();
 	parse_ht(ht,({
-		struct person_pair pair = * (struct person_pair*) h_element;
+		person_pair_t pair = * (person_pair_t*) h_element;
 		push_back(vec,pair);
 	}));
 	sort_vector(vec,(v_a.age > v_b.age));
@@ -91,7 +98,7 @@ int main(void){
 
 		// Search for that name in the hashtable
 		size_t result;
-		struct person_pair person = (struct person_pair){name};
+		person_pair_t person = (person_pair_t){name};
 		// find_ht(hashtable, what to find, condition, resulting pair, resulting index)
 		find_ht(ht,person,!strcmp(h_element.key,h_target.key),person,result);
 		if(result != -1){ // If the result is positive, it must mean we found it
@@ -102,7 +109,7 @@ int main(void){
 	
 	// Free all pairs in the hashtable, since their keys are allocated
 	parse_ht(ht,({
-		struct person_pair pair = * (struct person_pair*) h_element;
+		person_pair_t pair = * (person_pair_t*) h_element;
 		free(pair.key);
 	}));
 	free_ht(ht);

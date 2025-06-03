@@ -2,7 +2,6 @@
 #define CDS_VECTOR_H
 
 #include <stdio.h>
-#include <stdlib.h>
 
 // Vector structure macros
 // A vector structure must have these 2 members:
@@ -11,22 +10,34 @@
 // And <any int type> should be a valid integer type
 // A vector should always be initialized with arr=NULL and size=0
 
+// You can overwrite this macro with another
+#ifndef VECTOR_REALLOC
+#include <stdlib.h>
+#define VECTOR_REALLOC(ptr, sz) realloc((ptr),(sz))
+#endif
+
+// You can overwrite this macro with another
+#ifndef VECTOR_FREE
+#include <stdlib.h>
+#define VECTOR_FREE(ptr) free((ptr))
+#endif
+
 // Initialize a vector
 #define create_vector() {NULL,0}
 
 // Clear / free a vector
-#define free_vector(v) ({ if((v).size) free((v).arr); (v).arr = NULL; (v).size = 0; })
+#define free_vector(v) ({ if((v).size && (v).arr) VECTOR_FREE((v).arr); (v).arr = NULL; (v).size = 0; })
 
 // Push an element e at the back of vector v
 #define push_back(v, e) ({\
-	(v).arr = realloc((v).arr,sizeof(typeof(e))*++(v).size);\
+	(v).arr = VECTOR_REALLOC((v).arr,sizeof(typeof(e))*++(v).size);\
 	(v).arr[(v).size-1] = (e);\
 })
 
 // Add a new element to the vector, but with a specified type size
 // Does not insert the newly added element in the array
 #define add_size_vector(v, s) ({\
-	(v).arr = realloc((v).arr,(s)*++(v).size);\
+	(v).arr = VECTOR_REALLOC((v).arr,(s)*++(v).size);\
 })
 
 
@@ -42,12 +53,12 @@
 
 // Pop last element off the vector
 #define pop_back(v) ({\
-	if((v).size > 0)(v).arr = realloc((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
+	if((v).size > 0)(v).arr = VECTOR_REALLOC((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
 })
 
 // Pop last element off the vector with sized elements
 #define pop_back_sized(v,s) ({\
-	if((v).size > 0)(v).arr = realloc((v).arr,(s)*--(v).size);\
+	if((v).size > 0)(v).arr = VECTOR_REALLOC((v).arr,(s)*--(v).size);\
 })
 
 // Pop nth element off the vector
@@ -56,7 +67,7 @@
 	for(int v_i = (n); v_i < (v).size-1; v_i++){\
 		(v).arr[v_i] = (v).arr[v_i+1];\
 	}\
-	if((v).size > 0)(v).arr = realloc((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
+	if((v).size > 0)(v).arr = VECTOR_REALLOC((v).arr,sizeof(typeof(*(v).arr))*--(v).size);\
 })
 
 // Pop nth element off the vector, with sized elements
@@ -65,7 +76,7 @@
 	for(int v_i = (n); v_i < (v).size-1; v_i++){\
 		*at_sized((v),v_i,(s)) = *at_sized((v),v_i+1,(s));\
 	}\
-	if((v).size > 0)(v).arr = realloc((v).arr,(s)*--(v).size);\
+	if((v).size > 0)(v).arr = VECTOR_REALLOC((v).arr,(s)*--(v).size);\
 })
 
 /*
@@ -105,17 +116,19 @@ sort_vector(v,v_a > v_b); // Sorts the array ascendingly
 -- Do something with the sorted vector --
 */
 #define sort_vector(v, c) ({\
-	typeof(*(v).arr) v_a, v_b;\
-	_Bool v_sorted=0;\
-	while(!v_sorted){\
-		v_sorted=1;\
-		for(typeof((v).size) v_i = 0; v_i < (v).size-1; v_i++){\
-			v_a = (v).arr[v_i];\
-			v_b = (v).arr[v_i+1];\
-			if((c)){\
-				(v).arr[v_i+1] = v_a;\
-				(v).arr[v_i] = v_b;\
-				v_sorted = 0;\
+	if((v).size){\
+		typeof(*(v).arr) v_a, v_b;\
+		_Bool v_sorted=0;\
+		while(!v_sorted){\
+			v_sorted=1;\
+			for(typeof((v).size) v_i = 0; v_i < (v).size-1; v_i++){\
+				v_a = (v).arr[v_i];\
+				v_b = (v).arr[v_i+1];\
+				if((c)){\
+					(v).arr[v_i+1] = v_a;\
+					(v).arr[v_i] = v_b;\
+					v_sorted = 0;\
+				}\
 			}\
 		}\
 	}\
