@@ -10,9 +10,11 @@ To compile the examples you can either use the `cmake` build platform or simply 
 
 # Features
 For now, this library has 3 different data structures implemented:
-- ***Vectors***: A resizable array
-- ***Hashtables***: A table of key/value pairs, has a very small lookup time complexity
+- ***Vectors***: A resizable array structure.
+- ***Hashtables***: A table of key/value pairs, has a very small lookup time complexity.
 - ***Advanced Strings***: Advanced Strings are the equivalent of std::string, but for C. They support formatting.
+- ***Linked Lists***: A list composed of nodes pointing to the next ones (and optionally to the previous ones).
+- ***Binary Trees***: Structure composed of nodes following a parent/child hierarchy, where each parent has up to 2 children nodes.
 
 # How to use
 You can simply include them in your C source files, and no problem should arise.
