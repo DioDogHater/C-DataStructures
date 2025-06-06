@@ -19,4 +19,5 @@ For now, this library has 3 different data structures implemented:
 # How to use
 You can simply include them in your C source files, and no problem should arise.
 There might be problematic conflicting names, but I think it should be alright for most users.
-**Note that `hashtable.h` depends on `vector.h`.**
+For `vector.h`, one problem might be the frequent use of short names that might create naming conflicts.
+**Note that `hashtable.h` depends on `vector.h`, `queue.h` depends on `linked_list.h`**

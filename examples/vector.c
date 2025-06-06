@@ -31,12 +31,11 @@ int main(void){
 	// Now, lets try to find the number 5
 	size_t result;
 	find_vector(vec,(v_element == 5),result);
-	// What?! Another pseudo-thing? Don't worry, its the magic of macros.
 	// We parse through every element of the vector, until we find the one element where the condition becomes true.
 	// Then, the third argument (which should a variable of any integer type) is set to the index
 	// If the element is not in the vector, the third argument is set to ~0 which is basically the same as -1
 
-	// But wait, how can a size_t (unsigned long int) be negative?
+	// But wait, how can a size_t (unsigned long int) be negative? Actually, negative numbers can also be interpreted as unsigned in C.
 	// You can still set a size_t number and compare it with -1 because its the same value as ~0, which can be unsigned
 	if(result != -1){
 		// If the result is not -1, its the index of the element in the vector

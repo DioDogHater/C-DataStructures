@@ -10,6 +10,11 @@
 // And <any int type> should be a valid integer type
 // A vector should always be initialized with arr=NULL and size=0
 
+// TO AVOID BLOATING THE PROGRAM
+// PLEASE CREATE YOUR OWN "WRAPPER" FUNCTIONS
+// TO AVOID REPEATING THE SAME CODE OVER AND OVER AGAIN
+// WITH MACROS
+
 // You can overwrite this macro with another
 #ifndef VECTOR_REALLOC
 #include <stdlib.h>
@@ -40,6 +45,10 @@
 	(v).arr = VECTOR_REALLOC((v).arr,(s)*++(v).size);\
 })
 
+// Allocate and "reserve" a new block of memory for n elements
+#define reserve_vector(v, n) ({\
+	(v).arr = VECTOR_REALLOC((v).arr,sizeof(typeof(e))*++(v).size);\
+})
 
 // Get nth element of vector
 #define at(v, n) ((v).arr[(n)])
@@ -165,6 +174,7 @@ printf("%d\n",sum);
 })
 
 // Basic vector types
+// write #define BASIC_VECTOR_TYPES before including this file to access these built-in types
 #ifdef BASIC_VECTOR_TYPES
 struct int_vector{
 	int* arr;

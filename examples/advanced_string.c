@@ -12,7 +12,7 @@ int main(void){
 	// Create an empty string
 	struct String str = create_string();
 	
-	printf("Enter \"quit\" to exit.\n");
+	printf("Enter \"quit\" to exit.\nType anything in the console!\n");
 	
 	// Loop until user types quit
 	while(1){
